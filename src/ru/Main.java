@@ -106,12 +106,12 @@ public class Main {
             System.out.println("Ход Компьютера.");
             //printMap();
             if(aiWinningMove(DOT_AI)) System.out.println("ыыыыы");
+            else if(aiBlock()) System.out.println("Заблокировал))");
             else aiMove();
             // * печать поля
             printMap();
             // * проверка победы компьютера
             if(isVictory(DOT_AI)){
-                printMap();
                 System.out.println("Плоть слаба! Машины победили!");
                 System.exit(0);
             }
@@ -155,6 +155,7 @@ public class Main {
         }
         return true;
     }
+
 
     private static boolean isVictory(char dot) {
         // * проверка победы
@@ -204,9 +205,17 @@ public class Main {
             rowNumber = random.nextInt(3) + 1;
             columnNumber = random.nextInt(3) + 1;
         }
-        while(!isCellValid(rowNumber, columnNumber));
+        while(!isCellValid(rowNumber, columnNumber, DOT_AI));
 
         map[rowNumber - 1][columnNumber - 1] = DOT_AI;
+
+    }
+
+    private static boolean isCellValid(int row, int column, char dot) {
+        if(row < 1 || row > size || column < 1 || column > size) {
+            return false;
+        }
+        return map[row - 1][column - 1] == DOT_EMPTY;
 
     }
 
@@ -219,8 +228,7 @@ public class Main {
         if(aiWinningMoveRow(dot, counterRow)) return true;
         else if(aiWinningMoveColumn(dot, counterColumn)) return true;
         else if(aiWinningMoveDiagonal(dot, counterDiagonal)) return true;
-        else if(aiWinningMoveAuxDiagonal(dot, counterAuxDiagonal)) return true;
-        else return false;
+        else return aiWinningMoveAuxDiagonal(dot, counterAuxDiagonal);
     }
 
 
@@ -234,7 +242,7 @@ public class Main {
                 if(map[i][j] == dot) counterRow++;
                 else if(map[i][j] == DOT_EMPTY && counterRow == 2){
                     map[i][j] = dot;
-                    System.out.println("DOT_EMPTY && counterRow == 2");
+                    System.out.println("Выигрышный ход строка 1-1");
                     return true;
                 }
                 else if(map[i][j] == DOT_EMPTY){
@@ -247,7 +255,7 @@ public class Main {
             }
             if(counterRow == 2 && flagEmpty == 1){
                 map[rowNumber][columnNumber] = dot;
-                System.out.println("WinningRowAndFlag");
+                System.out.println("Выигрышный ход строка 1-2");
                 return true;
             }
             flagEmpty = 0;
@@ -266,7 +274,7 @@ public class Main {
                 if(map[j][i] == dot) counterColumn++;
                 else if(map[j][i] == DOT_EMPTY && counterColumn == 2){
                     map[j][i] = dot;
-                    System.out.println("DOT_EMPTY && counterColumn");
+                    System.out.println("Выигрышный ход столбец 2-1");
                     return true;
                 }else if(map[j][i] == DOT_EMPTY){
                     flagEmpty = 1;
@@ -278,7 +286,7 @@ public class Main {
             }
             if(counterColumn == 2 && flagEmpty == 1){
                 map[rowNumber][columnNumber] = dot;
-                System.out.println("WinningColumnAndFlag");
+                System.out.println("Выигрышный ход столбец 2-2");
                 return true;
             }
             flagEmpty = 0;
@@ -296,7 +304,7 @@ public class Main {
             if(map[i][i] == dot) counterDiagonal++;
             else if(map[i][i] == DOT_EMPTY && counterDiagonal == 2){
                 map[i][i] = dot;
-                System.out.println("DOT_EMPTY && counterDiagonal");
+                System.out.println("Выигрышный ход диагональ 3-1");
                 return true;
             }
             else if(map[i][i] == DOT_EMPTY){
@@ -307,7 +315,7 @@ public class Main {
         }
         if(counterDiagonal == 2 && flagEmpty == 1){
             map[rowAndColumnNumber][rowAndColumnNumber] = dot;
-            System.out.println("WinningDiagonalAndFlag");
+            System.out.println("Выигрышный ход диагональ 3-2");
             return true;
         }
         return false;
@@ -323,7 +331,7 @@ public class Main {
                     if(map[i][j] == dot) counterAuxDiagonal++;
                     else if(map[i][j] == DOT_EMPTY && counterAuxDiagonal == 2){
                         map[i][j] = dot;
-                        System.out.println("DOT_EMPTY && counterAuxDiagonal");
+                        System.out.println("Выигрышный ход побочная диагональ 4-1");
                         return true;
                     }
                     else if(map[i][j] == DOT_EMPTY){
@@ -335,7 +343,142 @@ public class Main {
             }
             if(counterAuxDiagonal == 2 && flagEmpty == 1){
                 map[rowNumber][columnNumber] = dot;
-                System.out.println("WinningAuxDiagonalAndFlag");
+                System.out.println("Выигрышный ход побочная диагональ 4-2");
+            }
+
+        }
+        return false;
+    }
+
+    public static boolean aiBlock(){
+        int counterRow = 0;
+        int counterColumn = 0;
+        int counterDiagonal = 0;
+        int counterAuxDiagonal = 0;
+
+        if(blockRow(counterRow)) return true;
+        else if(blockColumn(counterColumn)) return true;
+        else if(blockDiagonal(counterDiagonal)) return true;
+        else return (blockAuxDiagonal(counterAuxDiagonal));
+    }
+
+    private static boolean blockRow(int counterRow) {
+        int rowNumber = 0;
+        int columnNumber = 0;
+        int flagEmpty = 0;
+
+        for(int i = 0; i < size; i++){
+            for(int j = 0; j < size; j++){
+                if(map[i][j] == DOT_HUMAN) counterRow++;
+                else if(map[i][j] == DOT_EMPTY && counterRow == 2){
+                    map[i][j] = DOT_AI;
+                    System.out.println("Строка человека заблокирована 1-1");
+                }
+                else if(map[i][j] == DOT_EMPTY){
+                    flagEmpty = 1;
+                    rowNumber = i;
+                    columnNumber = j;
+                }
+            }
+            if(counterRow == 2 && flagEmpty == 1){
+                map[rowNumber][columnNumber] = DOT_AI;
+                System.out.println("Строка человека заблокирована 1-2");
+                return true;
+            }
+            flagEmpty = 0;
+            rowNumber = 0;
+            columnNumber = 0;
+            counterRow = 0;
+        }
+
+        return false;
+
+    }
+
+    private static boolean blockColumn(int counterColumn) {
+        int rowNumber = 0;
+        int columnNumber = 0;
+        int flagEmpty = 0;
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if(map[j][i] == DOT_HUMAN) counterColumn++;
+                else if(map[j][i] == DOT_EMPTY && counterColumn == 2){
+                    map[j][i] = DOT_AI;
+                    System.out.println("Столбик человека заблокирован 2-1");
+                    return true;
+                }
+                else if(map[j][i] == DOT_EMPTY){
+                    flagEmpty = 1;
+                    rowNumber = j;
+                    columnNumber = i;
+                }
+
+            }
+            if(counterColumn == 2 && flagEmpty ==1){
+                map[rowNumber][columnNumber] = DOT_AI;
+                System.out.println("Столбик человека заблокирован 2-2");
+                return true;
+            }
+            flagEmpty = 0;
+            rowNumber = 0;
+            columnNumber = 0;
+            counterColumn = 0;
+        }
+        return false;
+    }
+
+    private static boolean blockDiagonal(int counterDiagonal) {
+        int rowAndColumnNumber = 0;
+        int flagEmpty = 0;
+
+        for (int i = 0; i < size; i++) {
+            if(map[i][i] == DOT_HUMAN) counterDiagonal++;
+            else if(map[i][i] == DOT_EMPTY && counterDiagonal == 2){
+                map[i][i] = DOT_AI;
+                System.out.println("Диагональ человека заблокирована 3-1");
+                return true;
+            }
+            else if(map[i][i] ==  DOT_EMPTY){
+                flagEmpty = 1;
+                rowAndColumnNumber = i;
+            }
+
+        }
+        if(counterDiagonal == 2 && flagEmpty == 1){
+            map[rowAndColumnNumber][rowAndColumnNumber] = DOT_AI;
+            System.out.println("Диагональ человека заблокирована 3-2");
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean blockAuxDiagonal(int counterAuxDiagonal) {
+        int rowNumber = 0;
+        int columnNumber = 0;
+        int flagEmpty = 0;
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if((i + j) == (size - 1)){
+                    if(map[i][j] == DOT_HUMAN) counterAuxDiagonal++;
+                    else if(map[i][j] == DOT_EMPTY && counterAuxDiagonal == 2){
+                        map[i][j] = DOT_AI;
+                        System.out.println("Побочная диагональ человека заблокирована 4-1");
+                        return true;
+                    }
+                    else if(map[i][j] == DOT_EMPTY){
+                        flagEmpty = 1;
+                        rowNumber = i;
+                        columnNumber = j;
+                    }
+                }
+
+            }
+            if(counterAuxDiagonal == 2 && flagEmpty == 1){
+                map[rowNumber][columnNumber] = DOT_AI;
+                System.out.println("Побочная диагональ человека заблокирована 4-2");
+                return true;
             }
 
         }
