@@ -104,9 +104,6 @@ public class Main {
 
             // * ход компьютера
             System.out.println("Ход Компьютера.");
-            map[2][0] = DOT_AI;
-            map[1][1] = DOT_AI;
-            map[1][2] = DOT_AI;
             //printMap();
             if(aiWinningMove(DOT_AI)) System.out.println("ыыыыы");
             else aiMove();
