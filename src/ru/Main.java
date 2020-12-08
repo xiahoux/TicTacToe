@@ -104,15 +104,22 @@ public class Main {
 
             // * ход компьютера
             System.out.println("Ход Компьютера.");
-            aiMove();
+            map[2][0] = DOT_AI;
+            map[1][1] = DOT_AI;
+            map[1][2] = DOT_AI;
+            //printMap();
+            if(aiWinningMove(DOT_AI)) System.out.println("ыыыыы");
+            else aiMove();
             // * печать поля
             printMap();
             // * проверка победы компьютера
             if(isVictory(DOT_AI)){
+                printMap();
                 System.out.println("Плоть слаба! Машины победили!");
                 System.exit(0);
             }
             if(isDraw()){
+                printMap();
                 System.out.println("Ничья");
                 System.exit(0);
             }
@@ -130,7 +137,7 @@ public class Main {
             rowNumber = scanner.nextInt();
             System.out.println();
 
-            System.out.print("Стобик = ");
+            System.out.print("Столбик = ");
             columnNumber = scanner.nextInt();
             System.out.println();
         }while(!isCellValid(rowNumber, columnNumber));
@@ -168,10 +175,10 @@ public class Main {
                 else counterColumn = 0;
                 if(counterColumn == 3) return true;
 
-                if(i == j) {
-                    if (map[i][j] == dot) counterDiagonal++;
-                    else counterDiagonal = 0;
-                }
+
+                if (map[j][j] == dot) counterDiagonal++;
+                else counterDiagonal = 0;
+
                 if(counterDiagonal == 3) return true;
 
                 if( (i + j) == (size - 1) ){
@@ -180,7 +187,8 @@ public class Main {
                 }
                 if(counterAuxDiagonal == 3) return true;
             }
-
+            counterRow = 0;
+            counterColumn = 0;
         }
         return false;
 
@@ -205,4 +213,135 @@ public class Main {
 
     }
 
+    public static boolean aiWinningMove(char dot){
+        int counterRow = 0;
+        int counterColumn = 0;
+        int counterDiagonal = 0;
+        int counterAuxDiagonal = 0;
+
+        if(aiWinningMoveRow(dot, counterRow)) return true;
+        else if(aiWinningMoveColumn(dot, counterColumn)) return true;
+        else if(aiWinningMoveDiagonal(dot, counterDiagonal)) return true;
+        else if(aiWinningMoveAuxDiagonal(dot, counterAuxDiagonal)) return true;
+        else return false;
+    }
+
+
+
+    private static boolean aiWinningMoveRow(char dot, int counterRow) {
+        int columnNumber = 0;
+        int rowNumber = 0;
+        int flagEmpty = 0;
+        for(int i = 0; i < size; i++){
+            for(int j = 0; j < size; j++){
+                if(map[i][j] == dot) counterRow++;
+                else if(map[i][j] == DOT_EMPTY && counterRow == 2){
+                    map[i][j] = dot;
+                    System.out.println("DOT_EMPTY && counterRow == 2");
+                    return true;
+                }
+                else if(map[i][j] == DOT_EMPTY){
+                    flagEmpty = 1;
+                    rowNumber = i;
+                    columnNumber = j;
+                }
+
+
+            }
+            if(counterRow == 2 && flagEmpty == 1){
+                map[rowNumber][columnNumber] = dot;
+                System.out.println("WinningRowAndFlag");
+                return true;
+            }
+            flagEmpty = 0;
+            counterRow = 0;
+            columnNumber = 0;
+            rowNumber = 0;
+        }
+        return false;
+    }
+    private static boolean aiWinningMoveColumn(char dot, int counterColumn) {
+        int columnNumber = 0;
+        int rowNumber = 0;
+        int flagEmpty = 0;
+        for(int i = 0; i < size; i++){
+            for(int j = 0; j < size; j++){
+                if(map[j][i] == dot) counterColumn++;
+                else if(map[j][i] == DOT_EMPTY && counterColumn == 2){
+                    map[j][i] = dot;
+                    System.out.println("DOT_EMPTY && counterColumn");
+                    return true;
+                }else if(map[j][i] == DOT_EMPTY){
+                    flagEmpty = 1;
+                    rowNumber = j;
+                    columnNumber = i;
+                }
+
+
+            }
+            if(counterColumn == 2 && flagEmpty == 1){
+                map[rowNumber][columnNumber] = dot;
+                System.out.println("WinningColumnAndFlag");
+                return true;
+            }
+            flagEmpty = 0;
+            counterColumn = 0;
+            columnNumber = 0;
+            rowNumber = 0;
+        }
+        return false;
+
+    }
+    private static boolean aiWinningMoveDiagonal(char dot, int counterDiagonal) {
+        int rowAndColumnNumber = 0;
+        int flagEmpty = 0;
+        for(int i = 0; i < size; i++){
+            if(map[i][i] == dot) counterDiagonal++;
+            else if(map[i][i] == DOT_EMPTY && counterDiagonal == 2){
+                map[i][i] = dot;
+                System.out.println("DOT_EMPTY && counterDiagonal");
+                return true;
+            }
+            else if(map[i][i] == DOT_EMPTY){
+                flagEmpty = 1;
+                rowAndColumnNumber = i;
+            }
+
+        }
+        if(counterDiagonal == 2 && flagEmpty == 1){
+            map[rowAndColumnNumber][rowAndColumnNumber] = dot;
+            System.out.println("WinningDiagonalAndFlag");
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean aiWinningMoveAuxDiagonal(char dot, int counterAuxDiagonal) {
+        int rowNumber = 0;
+        int columnNumber = 0;
+        int flagEmpty = 0;
+        for(int i = 0; i < size; i++){
+            for(int j = 0; j < size; j++){
+                if((i + j) == (size - 1)){
+                    if(map[i][j] == dot) counterAuxDiagonal++;
+                    else if(map[i][j] == DOT_EMPTY && counterAuxDiagonal == 2){
+                        map[i][j] = dot;
+                        System.out.println("DOT_EMPTY && counterAuxDiagonal");
+                        return true;
+                    }
+                    else if(map[i][j] == DOT_EMPTY){
+                        flagEmpty = 1;
+                        rowNumber = i;
+                        columnNumber = j;
+                    }
+                }
+            }
+            if(counterAuxDiagonal == 2 && flagEmpty == 1){
+                map[rowNumber][columnNumber] = dot;
+                System.out.println("WinningAuxDiagonalAndFlag");
+            }
+
+        }
+        return false;
+    }
 }
