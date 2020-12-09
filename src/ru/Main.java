@@ -17,6 +17,7 @@ public class Main {
     public static int rowNumber;
     public static int columnNumber;
     public static int size = 1;
+    public static int chips = 3;
     public static char [][] map;
 
 
@@ -43,7 +44,9 @@ public class Main {
                 map[i][j] = DOT_EMPTY;
             }
         }
-
+        if(size <= 5) chips = 3;
+        else if(size >= 10) chips = 5;
+        else chips = 4;
 
     }
 
@@ -104,7 +107,15 @@ public class Main {
 
             // * ход компьютера
             System.out.println("Ход Компьютера.");
-            //printMap();
+            // ТЕСТ
+            /*map[1][1] = DOT_AI;
+            map[3][3] = DOT_AI;
+            map[4][4] = DOT_AI;*/
+
+
+
+
+
             if(aiWinningMove(DOT_AI)) System.out.println("ыыыыы");
             else if(aiBlock()) System.out.println("Заблокировал))");
             else aiMove();
@@ -163,30 +174,66 @@ public class Main {
         int counterColumn = 0;
         int counterDiagonal = 0;
         int counterAuxDiagonal = 0;
+
+        int counterDeltaDiagoinal = 0; // тестовая переменная для главной диагонали
+        int delta = -(size - chips); // переменная разрыва
+
+        int counterDeltaAuxDiagonal = 0; // тестовая переменная для побочной диагонали
+        int deltaAux = chips - 1;  // переменная разрыва
+
         for(int i = 0; i < size; i++){
             for(int j = 0; j < size; j++) {
                 if(map[i][j] == dot) counterRow++;
                 else counterRow = 0;
-                if(counterRow == 3) return true;
+                if(counterRow == chips) return true;
 
                 if(map[j][i] == dot) counterColumn++;
                 else counterColumn = 0;
-                if(counterColumn == 3) return true;
+                if(counterColumn == chips) return true;
 
-
+                /*
                 if (map[j][j] == dot) counterDiagonal++;
                 else counterDiagonal = 0;
 
-                if(counterDiagonal == 3) return true;
+                if(counterDiagonal == chips) return true;
 
                 if( (i + j) == (size - 1) ){
                     if(map[i][j] == dot) counterAuxDiagonal++;
                     else counterAuxDiagonal = 0;
                 }
-                if(counterAuxDiagonal == 3) return true;
+                if(counterAuxDiagonal == chips) return true; */
+
+                for (int k = 0; k < size; k++) {
+                    if((j - k) == delta){
+                        if(map[j][k] == dot){
+                            counterDeltaDiagoinal++;
+                        }else counterDeltaDiagoinal = 0;
+                    }
+                    if(counterDeltaDiagoinal == chips){
+                        System.out.println("Тест сработал!");
+                        return true;
+                    }
+                }
+
+                for (int k = 0; k < size; k++) {
+                    if((j + k) == deltaAux){
+                        if(map[j][k] == dot){
+                            counterDeltaAuxDiagonal++;
+                        }else counterDeltaAuxDiagonal = 0;
+                    }
+                    if(counterDeltaAuxDiagonal == chips){
+                        System.out.println("Тест 2 сработал!");
+                        return true;
+                    }
+
+                }
+
+
             }
             counterRow = 0;
             counterColumn = 0;
+            delta += 1;
+            deltaAux += 1;
         }
         return false;
 
@@ -202,8 +249,8 @@ public class Main {
 
     public static void aiMove(){
         do{
-            rowNumber = random.nextInt(3) + 1;
-            columnNumber = random.nextInt(3) + 1;
+            rowNumber = random.nextInt(size) + 1;
+            columnNumber = random.nextInt(size) + 1;
         }
         while(!isCellValid(rowNumber, columnNumber, DOT_AI));
 
